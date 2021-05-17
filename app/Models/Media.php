@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Video extends Model {
+class Media extends Model {
     use HasFactory;
 
     protected $appends = [ 'genres', 'mediums' ];
@@ -42,29 +42,29 @@ class Video extends Model {
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function user() {
-        return $this->belongsToMany( User::class, 'user_video' );
+        return $this->belongsToMany( User::class, 'user_media' );
     }
 
     /**
-     * Relationship between video and medium
+     * Relationship between media and medium
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function medium() {
-        return $this->belongsToMany( Medium::class, 'video_medium' );
+        return $this->belongsToMany( Medium::class, 'media_medium' );
     }
 
     /**
-     * Relationship between video and genre
+     * Relationship between media and genre
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function genre() {
-        return $this->belongsToMany( Genre::class, 'video_genre' );
+        return $this->belongsToMany( Genre::class, 'media_genre' );
     }
 
     /**
-     * Relationship between video and age rating
+     * Relationship between media and age rating
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -73,7 +73,7 @@ class Video extends Model {
     }
 
     /**
-     * Relationship between video and location
+     * Relationship between media and location
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -87,10 +87,10 @@ class Video extends Model {
      * @return void
      */
     protected static function booted() {
-        static::deleting( function ( $video ) {
-            $video->user()->detach();
-            $video->genre()->detach();
-            $video->medium()->detach();
+        static::deleting( function ( $media ) {
+            $media->user()->detach();
+            $media->genre()->detach();
+            $media->medium()->detach();
         } );
     }
 }

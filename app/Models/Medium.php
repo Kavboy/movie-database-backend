@@ -30,11 +30,11 @@ class Medium extends Model
     protected $hidden = ['pivot'];
 
     /**
-     * Relationship between video and medium
+     * Relationship between media and medium
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    /*public function video(){
-        return $this->belongsToMany(Video::class, 'video_medium');
+    /*public function media(){
+        return $this->belongsToMany(Video::class, 'media_medium');
     }*/
 }

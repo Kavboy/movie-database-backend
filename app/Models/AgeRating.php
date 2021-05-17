@@ -21,12 +21,12 @@ class AgeRating extends Model
     ];
 
     /**
-     * Relationship between video and age rating
+     * Relationship between media and age rating
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function video(){
-        return $this->hasMany(Video::class);
+    public function media(){
+        return $this->hasMany(Media::class);
     }
 
 }

@@ -28,11 +28,11 @@ class Genre extends Model
     protected $hidden = ['pivot'];
 
     /**
-     * Relationship between video and genre
+     * Relationship between media and genre
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function video(){
-        return $this->belongsToMany(Video::class, 'video_genre');
+    public function media(){
+        return $this->belongsToMany(Media::class, 'media_genre');
     }
 }

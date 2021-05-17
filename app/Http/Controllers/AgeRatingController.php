@@ -17,7 +17,7 @@ class AgeRatingController extends Controller
     public function index()  {
         try {
             if ( AgeRating::all() ) {
-                $ageRatings = AgeRating::all()->sortBy( 'fsk' );
+                $ageRatings = AgeRating::orderBy( 'id' )->get();
 
                 return response()->json( $ageRatings, 200 );
             } else {

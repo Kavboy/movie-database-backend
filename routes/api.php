@@ -1,12 +1,14 @@
 <?php
 
+use App\Http\Controllers\GenreController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AgeRatingController;
 use App\Http\Controllers\MediumController;
 use App\Http\Controllers\LocationController;
-use App\Http\Controllers\VideoController;
+use App\Http\Controllers\MediaController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,17 +25,24 @@ use Illuminate\Support\Facades\Route;
 Route::group( [ 'prefix' => '/v1' ], function () {
 
     Route::post( '/login', [ UserController::class, 'login' ] );
+    Route::get( '/check', function () {
+        if ( Auth::check() ) {
+            return response( '', 204 );
+        } else {
+            return response()->json( 'OK', 200 );
+        }
+    } );
 
-    Route::group( [ 'prefix' => 'video' ], function () {
-        Route::get( '', [ VideoController::class, 'index' ] );
-        Route::get( '/{id}', [ VideoController::class, 'show' ] );
-        Route::post( '/titles', [ VideoController::class, 'titles' ] );
-        Route::get( '/news', [ VideoController::class, 'news' ] );
-        Route::post('/search', [VideoController::class, 'search']);
+    Route::group( [ 'prefix' => '/media' ], function () {
+        Route::get( '', [ MediaController::class, 'index' ] );
+        Route::get( '/{id}', [ MediaController::class, 'show' ] );
+        Route::post( '/titles', [ MediaController::class, 'titles' ] );
+        Route::get( '/news', [ MediaController::class, 'news' ] );
+        Route::post( '/search', [ MediaController::class, 'search' ] );
     } );
 
     Route::middleware( [ 'auth:sanctum' ] )->group( function () {
-        Route::get( '/logout', [ UserController::class, 'logout' ] );
+        Route::post( '/logout', [ UserController::class, 'logout' ] );
 
         Route::group( [ 'prefix' => '/user' ], function () {
             Route::get( '', [ UserController::class, 'index' ] )->middleware( [ 'role:Admin' ] );
@@ -50,8 +59,9 @@ Route::group( [ 'prefix' => '/v1' ], function () {
             ] )->middleware( [ 'role:Admin' ] );
             Route::put( '', [ UserController::class, 'store' ] )->middleware( [ 'role:Admin' ] );
             Route::patch( '/{username}', [
-                'uses' => 'UserController@update',
-            ] );
+                UserController::class,
+                'update'
+            ] )->middleware( [ 'role:Admin:Creator:User' ] );
             Route::delete( '/own', [
                 UserController::class,
                 'destroyOwn'
@@ -59,10 +69,10 @@ Route::group( [ 'prefix' => '/v1' ], function () {
             Route::delete( '', [ UserController::class, 'destroy' ] )->middleware( [ 'role:Admin' ] );
         } );
 
-        Route::group( [ 'prefix' => 'video' ], function () {
-            Route::put( '', [ VideoController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
-            Route::patch( '/{id}', [ VideoController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
-            Route::delete( '/{id}', [ VideoController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
+        Route::group( [ 'prefix' => 'media' ], function () {
+            Route::put( '', [ MediaController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::patch( '/{id}', [ MediaController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::delete( '/{id}', [ MediaController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
         } );
 
         /**
@@ -83,6 +93,8 @@ Route::group( [ 'prefix' => '/v1' ], function () {
             Route::patch( '', [ MediumController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::delete( '/{id}', [ MediumController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
         } );
+
+        Route::get('genre', [GenreController::class, 'index'])->middleware(['role:Admin:Creator']);
 
         /**
          * FSk routes

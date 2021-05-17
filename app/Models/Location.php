@@ -21,11 +21,11 @@ class Location extends Model
     ];
 
     /**
-     * Relationship between video and location
+     * Relationship between media and location
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function video(){
-        return $this->hasMany(Video::class);
+    public function media(){
+        return $this->hasMany(Media::class);
     }
 }

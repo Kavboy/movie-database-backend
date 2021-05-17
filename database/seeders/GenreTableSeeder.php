@@ -15,103 +15,103 @@ class GenreTableSeeder extends Seeder
     public function run()
     {
         Genre::create([
-            'name' => 'Action',
+            'name' => 'action',
         ]);
 
         Genre::create([
-            'name' => 'Abenteuer',
+            'name' => 'abenteuer',
         ]);
 
         Genre::create([
-            'name' => 'Animation',
+            'name' => 'animation',
         ]);
 
         Genre::create([
-            'name' => 'Comedy',
+            'name' => 'comedy',
         ]);
 
         Genre::create([
-            'name' => 'Crime',
+            'name' => 'crime',
         ]);
 
         Genre::create([
-            'name' => 'Documentary',
+            'name' => 'documentary',
         ]);
 
         Genre::create([
-            'name' => 'Drama',
+            'name' => 'drama',
         ]);
 
         Genre::create([
-            'name' => 'Family',
+            'name' => 'family',
         ]);
 
         Genre::create([
-            'name' => 'Fantasy',
+            'name' => 'fantasy',
         ]);
 
         Genre::create([
-            'name' => 'History',
+            'name' => 'history',
         ]);
 
         Genre::create([
-            'name' => 'Horror',
+            'name' => 'horror',
         ]);
 
         Genre::create([
-            'name' => 'Music',
+            'name' => 'music',
         ]);
 
         Genre::create([
-            'name' => 'Mystery',
+            'name' => 'mystery',
         ]);
 
         Genre::create([
-            'name' => 'Romance',
+            'name' => 'romance',
         ]);
 
         Genre::create([
-            'name' => 'Science Fiction',
+            'name' => 'science-fiction',
         ]);
 
         Genre::create([
-            'name' => 'TV Movie',
+            'name' => 'tv-movie',
         ]);
 
         Genre::create([
-            'name' => 'Thriller',
+            'name' => 'thriller',
         ]);
 
         Genre::create([
-            'name' => 'War',
+            'name' => 'war',
         ]);
 
         Genre::create([
-            'name' => 'Western',
+            'name' => 'western',
         ]);
 
         Genre::create([
-            'name' => 'Kids',
+            'name' => 'kids',
         ]);
 
         Genre::create([
-            'name' => 'News',
+            'name' => 'news',
         ]);
 
         Genre::create([
-            'name' => 'Reality',
+            'name' => 'reality',
         ]);
 
         Genre::create([
-            'name' => 'Soap',
+            'name' => 'soap',
         ]);
 
         Genre::create([
-            'name' => 'Talk',
+            'name' => 'talk',
         ]);
 
         Genre::create([
-            'name' => 'Politics',
+            'name' => 'politics',
         ]);
     }
 }

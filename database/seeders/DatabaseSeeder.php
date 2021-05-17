@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         DB::table('age_ratings')->delete();
         DB::table('mediums')->delete();
-        DB::table( 'user_video' )->delete();
+        DB::table( 'user_media' )->delete();
         DB::table('users')->delete();
         DB::table('roles')->delete();
         DB::table('genres')->delete();

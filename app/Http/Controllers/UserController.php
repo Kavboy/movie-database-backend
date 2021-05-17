@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -237,8 +238,16 @@ class UserController extends Controller {
         ] );
 
         try {
+
+            if(Auth::guard('web')->attempt(['username' => $fields['username'], 'password' => $fields['password']])){
+                $request->session()->regenerate();
+                return response()->json(Auth::user(), 200);
+            } else {
+                return response()->json("Provided credentials wrong", 401);
+            }
+
             //Check email
-            $user = User::where( 'username', $fields['username'] )->first();
+            /*$user = User::where( 'username', $fields['username'] )->first();
 
             //Check password
             if ( ! $user || ! Hash::check( $fields['password'], $user->password ) ) {
@@ -253,7 +262,7 @@ class UserController extends Controller {
                 'user'    => $user,
                 'token'   => $token,
                 'message' => 'login successful'
-            ], 200 );
+            ], 200 );*/
 
         } catch ( QueryException $ex ) {
             if ( env( 'APP_DEBUG' ) ) {
@@ -272,8 +281,9 @@ class UserController extends Controller {
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout( Request $request ) {
-        $request->user()->currentAccessToken()->delete();
+    public function logout(Request $request) {
+        Auth::guard('web')->logout();
+        error_log($request->session()->getId());
 
         return response()->json( [ 'message' => 'Logged Out' ], 200 );
     }
