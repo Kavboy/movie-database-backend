@@ -233,36 +233,22 @@ class UserController extends Controller {
      */
     public function login( Request $request ) {
         $fields = $request->validate( [
-            'username' => [ 'required', 'string', 'filled', 'max:255' ],
-            'password' => [ 'required', 'string', 'filled', 'min:8' ],
+            'username' => [ 'required', 'string', 'filled' ],
+            'password' => [ 'required', 'string', 'filled' ],
         ] );
 
         try {
 
-            if(Auth::guard('web')->attempt(['username' => $fields['username'], 'password' => $fields['password']])){
+            if ( Auth::guard( 'web' )->attempt( [
+                'username' => $fields['username'],
+                'password' => $fields['password']
+            ] ) ) {
                 $request->session()->regenerate();
-                return response()->json(Auth::user(), 200);
+
+                return response()->json( Auth::user(), 200 );
             } else {
-                return response()->json("Provided credentials wrong", 401);
+                return response()->json( "Provided credentials wrong", 401 );
             }
-
-            //Check email
-            /*$user = User::where( 'username', $fields['username'] )->first();
-
-            //Check password
-            if ( ! $user || ! Hash::check( $fields['password'], $user->password ) ) {
-                return response()->json( [
-                    'message' => 'Bad credentials'
-                ], 401 );
-            }
-
-            $token = $user->createToken( 'myapptoken' )->plainTextToken;
-
-            return response()->json( [
-                'user'    => $user,
-                'token'   => $token,
-                'message' => 'login successful'
-            ], 200 );*/
 
         } catch ( QueryException $ex ) {
             if ( env( 'APP_DEBUG' ) ) {
@@ -281,9 +267,9 @@ class UserController extends Controller {
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout(Request $request) {
-        Auth::guard('web')->logout();
-        error_log($request->session()->getId());
+    public function logout( Request $request ) {
+        Auth::guard( 'web' )->logout();
+        error_log( $request->session()->getId() );
 
         return response()->json( [ 'message' => 'Logged Out' ], 200 );
     }

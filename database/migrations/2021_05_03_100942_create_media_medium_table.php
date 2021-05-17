@@ -13,7 +13,7 @@ class CreateMediaMediumTable extends Migration
      */
     public function up()
     {
-        Schema::create('video_media', function (Blueprint $table) {
+        Schema::create('media_medium', function (Blueprint $table) {
             $table->foreignId('media_id')->constrained('medias');
             $table->foreignId('medium_id')->constrained('mediums');
         });
@@ -26,6 +26,6 @@ class CreateMediaMediumTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('video_media');
+        Schema::dropIfExists('media_medium');
     }
 }

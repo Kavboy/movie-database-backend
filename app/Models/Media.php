@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Media extends Model {
     use HasFactory;
 
+    public $table = 'medias';
+
     protected $appends = [ 'genres', 'mediums' ];
 
     /**

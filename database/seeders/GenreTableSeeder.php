@@ -19,7 +19,7 @@ class GenreTableSeeder extends Seeder
         ]);
 
         Genre::create([
-            'name' => 'abenteuer',
+            'name' => 'adventure',
         ]);
 
         Genre::create([
