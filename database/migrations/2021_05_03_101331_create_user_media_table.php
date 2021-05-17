@@ -14,8 +14,8 @@ class CreateUserMediaTable extends Migration
     public function up()
     {
         Schema::create('user_media', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('media_id')->constrained();
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('media_id')->constrained('medias');
         });
     }
 
