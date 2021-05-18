@@ -23,7 +23,7 @@ class MediaController extends Controller {
      */
     public function index( Request $request ) {
 
-        $perPage = env( 'PER_PAGE', 5 );
+        $perPage = env( 'PER_PAGE', 2 );
         $medium  = null;
 
         if ( $request->get( 'per_page' ) ) {
@@ -37,12 +37,15 @@ class MediaController extends Controller {
         try {
             if ( ! $medium ) {
                 $medias = Media::orderBy( 'title' )->paginate( $perPage );
+                $medias->setCollection($medias->getCollection()->makehidden(['cast', 'youtube_link', 'location', 'release_date', 'genres', 'mediums']));
 
                 return response()->json( $medias, 200 );
             } elseif ( $medium ) {
                 $medias = Media::whereHas( 'medium', function ( $query ) use ( $medium ) {
                     $query->where( 'medium', 'LIKE', "%{$medium}%" );
                 } )->orderBy( 'title' )->paginate( $perPage );
+
+                $medias->setCollection($medias->getCollection()->makehidden(['cast', 'youtube_link', 'location', 'release_date', 'genres', 'mediums']));
 
                 return response()->json( $medias, 200 );
             } else {
@@ -219,7 +222,7 @@ class MediaController extends Controller {
             'poster_file'  => [ 'file', 'mimes:jpg,png,webp'],
             'poster_path'  => [ 'string', 'filled', 'max:255' ],
             'tmdb_id'      => [ 'numeric', 'integer' ],
-            'youtube_link' => [ 'nullable', 'url', 'regex:/^https:\/\/((www)?(\.)?)youtube(\.)com\/watch(\?)v=([a-zA-Z\d\-_&=])+$/' ],
+            'youtube_link' => [ 'nullable', 'string', 'regex:/^([a-zA-Z\d\-_&=])+$/' ],
             'cast'         => [ 'array' ],
             'age_rating'   => [ 'required', 'exists:age_ratings,fsk' ],
             'location'     => [ 'max:255' ],
@@ -358,7 +361,7 @@ class MediaController extends Controller {
             'poster_file'  => [ 'file', 'mimes:jpg,png,webp'],
             'poster_path'  => [ 'string', 'filled', 'max:255' ],
             'tmdb_id'      => [ 'numeric', 'integer' ],
-            'youtube_link' => [ 'nullable', 'url', 'regex:/^https:\/\/((www)?(\.)?)youtube(\.)com\/watch(\?)v=([a-zA-Z\d\-_&=])+$/' ],
+            'youtube_link' => [ 'nullable', 'string', 'regex:/^([a-zA-Z\d\-_&=])+$/' ],
             'cast'         => [ 'array' ],
             'age_rating'   => [ 'exists:age_ratings,fsk' ],
             'location'     => [ 'max:255' ],
