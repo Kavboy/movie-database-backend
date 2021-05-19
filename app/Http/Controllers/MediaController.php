@@ -23,7 +23,7 @@ class MediaController extends Controller {
      */
     public function index( Request $request ) {
 
-        $perPage = env( 'PER_PAGE', 2 );
+        $perPage = env( 'PER_PAGE', 5 );
         $medium  = null;
 
         if ( $request->get( 'per_page' ) ) {
@@ -37,7 +37,14 @@ class MediaController extends Controller {
         try {
             if ( ! $medium ) {
                 $medias = Media::orderBy( 'title' )->paginate( $perPage );
-                $medias->setCollection($medias->getCollection()->makehidden(['cast', 'youtube_link', 'location', 'release_date', 'genres', 'mediums']));
+                $medias->setCollection( $medias->getCollection()->makehidden( [
+                    'cast',
+                    'youtube_link',
+                    'location',
+                    'release_date',
+                    'genres',
+                    'mediums'
+                ] ) );
 
                 return response()->json( $medias, 200 );
             } elseif ( $medium ) {
@@ -45,7 +52,14 @@ class MediaController extends Controller {
                     $query->where( 'medium', 'LIKE', "%{$medium}%" );
                 } )->orderBy( 'title' )->paginate( $perPage );
 
-                $medias->setCollection($medias->getCollection()->makehidden(['cast', 'youtube_link', 'location', 'release_date', 'genres', 'mediums']));
+                $medias->setCollection( $medias->getCollection()->makehidden( [
+                    'cast',
+                    'youtube_link',
+                    'location',
+                    'release_date',
+                    'genres',
+                    'mediums'
+                ] ) );
 
                 return response()->json( $medias, 200 );
             } else {
@@ -65,6 +79,33 @@ class MediaController extends Controller {
     }
 
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function table( Request $request ) {
+        try {
+            $medias = Media::orderBy( 'id' )->paginate( 10 );
+            if ( $medias ) {
+                return response()->json( $medias, 200 );
+            } else {
+                return response()->json( [], 404 );
+            }
+        } catch ( QueryException $ex ) {
+
+            if ( env( 'APP_DEBUG' ) ) {
+                $res['message'] = $ex->getMessage();
+            } else {
+                Log::error( $ex );
+                $res['message'] = 'Something unexpected happened, please try again later';
+            }
+
+            return response()->json( $res, 500 );
+        }
+    }
+
+
+    /**
      * Display a listing of the newest 5 medias.
      *
      * @return \Illuminate\Http\JsonResponse
@@ -74,7 +115,7 @@ class MediaController extends Controller {
             if ( Media::orderByDesc( 'created_at' )->take( 5 )->get() ) {
                 $medias = Media::orderByDesc( 'created_at' )->take( 5 )->get();
 
-                $medias->makehidden(['cast', 'youtube_link', 'location', 'release_date', 'genres', 'mediums']);
+                $medias->makehidden( [ 'cast', 'youtube_link', 'location', 'release_date', 'genres', 'mediums' ] );
 
                 return response()->json( $medias, 200 );
             } else {
@@ -111,9 +152,9 @@ class MediaController extends Controller {
 
         try {
 
-            $title   = null;
-            $mediums = null;
-            $genres  = null;
+            $title      = null;
+            $mediums    = null;
+            $genres     = null;
             $ageRatings = null;
 
             if ( Arr::exists( $validated, 'title' ) ) {
@@ -219,7 +260,7 @@ class MediaController extends Controller {
             'title'        => [ 'required', 'max:255', 'string', 'filled', 'unique:medias,title' ],
             'release_date' => [ 'required', 'filled', 'date_format:Y-m-d' ],
             'overview'     => [ 'string', 'nullable' ],
-            'poster_file'  => [ 'file', 'mimes:jpg,png,webp'],
+            'poster_file'  => [ 'file', 'mimes:jpg,png,webp' ],
             'poster_path'  => [ 'string', 'filled', 'max:255' ],
             'tmdb_id'      => [ 'numeric', 'integer' ],
             'youtube_link' => [ 'nullable', 'string', 'regex:/^([a-zA-Z\d\-_&=])+$/' ],
@@ -235,11 +276,11 @@ class MediaController extends Controller {
         try {
             $media               = new Media;
             $media->type         = $validated['type'];
-            $media->title        = Str::of($validated['title'])->trim();
+            $media->title        = Str::of( $validated['title'] )->trim();
             $media->release_date = $validated['release_date'];
 
             if ( Arr::exists( $validated, 'overview' ) ) {
-                $media->overview = Str::of($validated['overview'])->trim();
+                $media->overview = Str::of( $validated['overview'] )->trim();
             }
 
             if ( Arr::exists( $validated, 'poster_path' ) ) {
@@ -251,11 +292,11 @@ class MediaController extends Controller {
             }
 
             if ( Arr::exists( $validated, 'poster_file' ) ) {
-                $fileName = Str::of($validated['title'])->trim()->snake()->replace(' ', '_');
-                $fileName .= "." . $request->file('poster_file')->extension();
-                $request->file('poster_file')->storeAS('public', $fileName);
-                $url = Storage::url($fileName);
-                $path = asset($url);
+                $fileName = Str::of( $validated['title'] )->trim()->snake()->replace( ' ', '_' );
+                $fileName .= "." . $request->file( 'poster_file' )->extension();
+                $request->file( 'poster_file' )->storeAS( 'public', $fileName );
+                $url                = Storage::url( $fileName );
+                $path               = asset( $url );
                 $media->poster_path = $path;
             }
 
@@ -264,11 +305,11 @@ class MediaController extends Controller {
             }
 
             if ( Arr::exists( $validated, 'cast' ) ) {
-                if ($request->hasHeader('Content-Type') && str_contains($request->header('Content-Type'),'multipart/form-data')) {
-                    error_log('content type');
+                if ( $request->hasHeader( 'Content-Type' ) && str_contains( $request->header( 'Content-Type' ), 'multipart/form-data' ) ) {
+                    error_log( 'content type' );
                     $arr = [];
-                    foreach ($validated['cast'] as $cast) {
-                        array_push($arr, json_decode($cast));
+                    foreach ( $validated['cast'] as $cast ) {
+                        array_push( $arr, json_decode( $cast ) );
                     }
 
                     $media->cast = json_encode( $arr );
@@ -282,7 +323,7 @@ class MediaController extends Controller {
             $media->ageRatings()->associate( $ageRating );
 
             if ( Arr::exists( $validated, 'location' ) ) {
-                $location = Location::where('location', $validated['location'] )->first();
+                $location = Location::where( 'location', $validated['location'] )->first();
 
                 if ( $location ) {
                     $media->location()->associate( $location );
@@ -358,7 +399,7 @@ class MediaController extends Controller {
             'title'        => [ 'max:255', 'string', 'filled' ],
             'release_date' => [ 'filled', 'date_format:Y-m-d' ],
             'overview'     => [ 'string', 'nullable' ],
-            'poster_file'  => [ 'file', 'mimes:jpg,png,webp'],
+            'poster_file'  => [ 'file', 'mimes:jpg,png,webp' ],
             'poster_path'  => [ 'string', 'filled', 'max:255' ],
             'tmdb_id'      => [ 'numeric', 'integer' ],
             'youtube_link' => [ 'nullable', 'string', 'regex:/^([a-zA-Z\d\-_&=])+$/' ],
@@ -403,11 +444,11 @@ class MediaController extends Controller {
             }
 
             if ( Arr::exists( $validated, 'cast' ) ) {
-                if ($request->hasHeader('Content-Type') && str_contains($request->header('Content-Type'),'multipart/form-data')) {
-                    error_log('content type');
+                if ( $request->hasHeader( 'Content-Type' ) && str_contains( $request->header( 'Content-Type' ), 'multipart/form-data' ) ) {
+                    error_log( 'content type' );
                     $arr = [];
-                    foreach ($validated['cast'] as $cast) {
-                        array_push($arr, json_decode($cast));
+                    foreach ( $validated['cast'] as $cast ) {
+                        array_push( $arr, json_decode( $cast ) );
                     }
 
                     $media->cast = json_encode( $arr );
@@ -429,7 +470,7 @@ class MediaController extends Controller {
 
                 $media->location()->dissociate();
 
-                $location = Location::where('location', $validated['location'] )->first();
+                $location = Location::where( 'location', $validated['location'] )->first();
 
                 if ( $location ) {
                     $media->location()->associate( $location );

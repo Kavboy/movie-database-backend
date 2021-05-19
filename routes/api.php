@@ -70,6 +70,7 @@ Route::group( [ 'prefix' => '/v1' ], function () {
         } );
 
         Route::group( [ 'prefix' => 'media' ], function () {
+            Route::get( '/table', [ MediaController::class, 'table' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::put( '', [ MediaController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::patch( '/{id}', [ MediaController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::delete( '/{id}', [ MediaController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
