@@ -38,6 +38,10 @@ class Media extends Model {
         return json_decode($value);
     }
 
+    public function getSeasonsAttribute($value) {
+        return json_decode($value);
+    }
+
     /**
      * Relationship between user and role
      *

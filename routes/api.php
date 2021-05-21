@@ -46,6 +46,7 @@ Route::group( [ 'prefix' => '/v1' ], function () {
 
         Route::group( [ 'prefix' => '/user' ], function () {
             Route::get( '', [ UserController::class, 'index' ] )->middleware( [ 'role:Admin' ] );
+            Route::get( '/table', [ UserController::class, 'table' ] )->middleware( [ 'role:Admin' ] );
             Route::get( '/whoami', function ( Request $request ) {
                 return $request->user();
             } );
@@ -66,7 +67,7 @@ Route::group( [ 'prefix' => '/v1' ], function () {
                 UserController::class,
                 'destroyOwn'
             ] )->middleware( [ 'role:Admin:Creator:User' ] );
-            Route::delete( '', [ UserController::class, 'destroy' ] )->middleware( [ 'role:Admin' ] );
+            Route::delete( '/{username}', [ UserController::class, 'destroy' ] )->middleware( [ 'role:Admin' ] );
         } );
 
         Route::group( [ 'prefix' => 'media' ], function () {

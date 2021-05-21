@@ -270,7 +270,9 @@ class MediaController extends Controller {
             'mediums'      => [ 'required', 'array' ],
             'mediums.*'    => [ 'required', 'exists:mediums,medium' ],
             'genres'       => [ 'required', 'array' ],
-            'genres.*'     => [ 'required', 'exists:genres,name' ]
+            'genres.*'     => [ 'required', 'exists:genres,name' ],
+            'seasons'      => [ 'array' ],
+            'seasons.*'    => [ 'string' ]
         ] );
 
         try {
@@ -316,6 +318,10 @@ class MediaController extends Controller {
                 } else {
                     $media->cast = json_encode( $validated['cast'] );
                 }
+            }
+
+            if ( Arr::exists( $validated, 'seasons' ) ) {
+                $media->seasons = json_encode($validated['seasons']);
             }
 
             $ageRating = AgeRating::where( 'fsk', $validated['age_rating'] )->first();
@@ -409,18 +415,22 @@ class MediaController extends Controller {
             'mediums'      => [ 'array' ],
             'mediums.*'    => [ 'exists:mediums,medium' ],
             'genres'       => [ 'array' ],
-            'genres.*'     => [ 'exists:genres,name' ]
+            'genres.*'     => [ 'exists:genres,name' ],
+            'seasons'      => [ 'array' ],
+            'seasons.*'    => [ 'string' ]
         ] );
 
         try {
+            error_log( $id );
             $media = Media::find( $id );
 
             if ( Arr::exists( $validated, 'type' ) ) {
+                error_log( $validated['type'] );
                 $media->type = $validated['type'];
             }
 
             if ( Arr::exists( $validated, 'title' ) ) {
-                $media->type = $validated['title'];
+                $media->title = $validated['title'];
             }
 
             if ( Arr::exists( $validated, 'release_date' ) ) {
@@ -435,6 +445,20 @@ class MediaController extends Controller {
                 $media->poster_path = $validated['poster_path'];
             }
 
+            if ( Arr::exists( $validated, 'poster_file' ) ) {
+                $fileName = Str::of( $validated['title'] )->trim()->snake()->replace( ' ', '_' );
+                $fileName .= "." . $request->file( 'poster_file' )->extension();
+
+                if ( Storage::exists( $fileName ) ) {
+                    Storage::delete( $fileName );
+                }
+
+                $request->file( 'poster_file' )->storeAS( 'public', $fileName );
+                $url                = Storage::url( $fileName );
+                $path               = asset( $url );
+                $media->poster_path = $path;
+            }
+
             if ( Arr::exists( $validated, 'tmdb_id' ) ) {
                 $media->tmdb_id = $validated['tmdb_id'];
             }
@@ -445,7 +469,6 @@ class MediaController extends Controller {
 
             if ( Arr::exists( $validated, 'cast' ) ) {
                 if ( $request->hasHeader( 'Content-Type' ) && str_contains( $request->header( 'Content-Type' ), 'multipart/form-data' ) ) {
-                    error_log( 'content type' );
                     $arr = [];
                     foreach ( $validated['cast'] as $cast ) {
                         array_push( $arr, json_decode( $cast ) );
@@ -455,6 +478,10 @@ class MediaController extends Controller {
                 } else {
                     $media->cast = json_encode( $validated['cast'] );
                 }
+            }
+
+            if ( Arr::exists( $validated, 'seasons' ) ) {
+                $media->seasons = json_encode($validated['seasons']);
             }
 
             if ( Arr::exists( $validated, 'age_rating' ) ) {
@@ -480,7 +507,7 @@ class MediaController extends Controller {
             $media->save();
 
             if ( Arr::exists( $validated, 'mediums' ) ) {
-                $media->mediums()->detach();
+                $media->medium()->detach();
 
                 foreach ( $validated['mediums'] as $medium ) {
                     $medium_element = Medium::where( 'medium', $medium )->first();
@@ -521,6 +548,22 @@ class MediaController extends Controller {
         try {
             if ( Media::find( $id ) ) {
                 $media = Media::find( $id );
+
+                $fileName = Str::of( $media->title )->trim()->snake()->replace( ' ', '_' );
+                $fileName .= ".jpg";
+
+                $fileNames  = [];
+                $extensions = [ '.jpg', '.png', '.webp' ];
+
+                foreach ( $extensions as $ext ) {
+                    array_push( $fileNames, $fileName . $ext );
+                }
+
+                foreach ( $fileNames as $fileName ) {
+                    if ( Storage::exists( $fileName ) ) {
+                        Storage::delete( $fileName );
+                    }
+                }
 
                 $media->delete();
 

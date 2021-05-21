@@ -35,6 +35,40 @@ class UserController extends Controller {
     }
 
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function table( Request $request ) {
+        try {
+            $users = User::orderBy( 'id' )->paginate( 10 );
+
+            $data = $users->getCollection();
+            $data->each(function ($item) {
+                $item->setHidden([])->setVisible(['id', 'username', 'role']);
+            });
+            $users->setCollection($data);
+
+
+            if ( $users ) {
+                return response()->json( $users, 200 );
+            } else {
+                return response()->json( [], 404 );
+            }
+        } catch ( QueryException $ex ) {
+
+            if ( env( 'APP_DEBUG' ) ) {
+                $res['message'] = $ex->getMessage();
+            } else {
+                Log::error( $ex );
+                $res['message'] = 'Something unexpected happened, please try again later';
+            }
+
+            return response()->json( $res, 500 );
+        }
+    }
+
+    /**
      * Display the specified resource.
      *
      * @param string $username
@@ -80,11 +114,11 @@ class UserController extends Controller {
         ] );
 
         try {
-            if ( User::find( $username ) ) {
-                $user = User::find( $username );
+            if ( User::where( 'username', $username )->first() ) {
+                $user = User::where( 'username', $username )->first();
             } else {
                 return response()->json( [
-                    'message' => 'Please provide a valid username'
+                    'message' => 'Wrong Information'
                 ], 404 );
             }
 
@@ -92,11 +126,11 @@ class UserController extends Controller {
                 $user->username = $fields['username'];
             }
 
-            if ( $fields['role'] && Role::find( $fields['role'] ) ) {
+            if ( $fields['role'] && Role::where( 'role', $fields['role'] )->first() ) {
 
                 $user->role()->dissociate();
 
-                $role = Role::find( $fields['role'] );
+                $role = Role::where( 'role', $fields['role'] )->first();
 
                 $user->role()->associate( $role );
 
@@ -156,17 +190,22 @@ class UserController extends Controller {
      */
     public function destroy( string $username ) {
         try {
-            if ( User::find( $username ) ) {
-                User::find( $username )->delete();
+            if (User::all()->where('role', 'Admin')->count() > 1) {
+                if ( User::where('username', $username )->first() ) {
+                    //User::where('username', $username )->first()->delete();
 
+                    return response()->json( [
+                        'message' => 'Successfully deleted'
+                    ], 200 );
+                }
                 return response()->json( [
-                    'message' => 'Successfully deleted'
-                ], 200 );
+                    'message' => 'No such user',
+                ], 404 );
             }
 
             return response()->json( [
-                'message' => 'No such user',
-            ], 404 );
+                'message' => 'Not possible because condition not satisfied',
+            ], 412 );
 
         } catch ( QueryException $ex ) {
             if ( env( 'APP_DEBUG' ) ) {
@@ -193,8 +232,8 @@ class UserController extends Controller {
         ] );
 
         try {
-            if ( Role::find( $fields['role'] ) ) {
-                $role = Role::find( $fields['role'] );
+            if ( Role::where('role', $fields['role'] )->first() ) {
+                $role = Role::where('role', $fields['role'] )->first();
 
                 $user           = new User;
                 $user->username = $fields['username'];
@@ -282,6 +321,7 @@ class UserController extends Controller {
      * @return \Illuminate\Http\JsonResponse
      */
     public function changeOwnPasswordRequest( Request $request ) {
+
         try {
             $fields = $request->validate( [
                 'old_password' => [ 'required', 'filled' ],
@@ -290,13 +330,11 @@ class UserController extends Controller {
 
             $user = $request->user();
 
-            error_log( $user );
-
             if ( $user ) {
-                if ( Hash::check( $fields['oldPassword'], $user->password ) ) {
-                    $this->changePassword( $user->username, $fields['newPassword'] );
+                if ( Hash::check( $fields['old_password'], $user->password ) ) {
+                    $this->changePassword( $user->username, $fields['new_password'] );
 
-                    $res = $user;
+                    $res['success'] = true;
 
                     return response()->json( $res, 200 );
                 } else {
@@ -357,7 +395,7 @@ class UserController extends Controller {
      * @param string $newPassword
      */
     public function changePassword( string $username, string $newPassword ) {
-        $user           = User::find( $username );
+        $user           = User::where( 'username', $username )->first();
         $user->password = Hash::make( $newPassword );
         $user->save();
     }

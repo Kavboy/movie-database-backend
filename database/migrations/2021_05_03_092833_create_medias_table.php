@@ -23,6 +23,7 @@ class CreateMediasTable extends Migration
             $table->unsignedBigInteger('tmdb_id')->nullable()->default(NULL);
             $table->string('youtube_link')->nullable()->default(NULL);
             $table->json('cast')->nullable()->default(NULL);
+            $table->json('seasons')->nullable()->default(NULL);
             $table->foreignId('age_rating')->constrained();
             $table->foreignId('location')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();

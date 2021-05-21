@@ -91,7 +91,7 @@ class User extends Authenticatable
      */
     protected static function booted() {
         static::deleting(function ($user) {
-            $user->video()->detach();
+            $user->media()->detach();
         });
     }
 }
