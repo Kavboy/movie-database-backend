@@ -1,4 +1,6 @@
 .idea
+.installed
+*/mssql/data
 /node_modules
 /public/hot
 /public/storage
