@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserMediaTable extends Migration
+class CreateLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class CreateUserMediaTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_media', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('media_id');
+        Schema::create('logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('action', 255);
+            $table->string('table', 255);
+            $table->timestamps();
         });
     }
 
@@ -26,6 +28,6 @@ class CreateUserMediaTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_media');
+        Schema::dropIfExists('logs');
     }
 }

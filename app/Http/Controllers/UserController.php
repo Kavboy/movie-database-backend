@@ -44,10 +44,10 @@ class UserController extends Controller {
             $users = User::orderBy( 'id' )->paginate( 10 );
 
             $data = $users->getCollection();
-            $data->each(function ($item) {
-                $item->setHidden([])->setVisible(['id', 'username', 'role']);
-            });
-            $users->setCollection($data);
+            $data->each( function ( $item ) {
+                $item->setHidden( [] )->setVisible( [ 'id', 'username', 'role' ] );
+            } );
+            $users->setCollection( $data );
 
 
             if ( $users ) {
@@ -190,23 +190,34 @@ class UserController extends Controller {
      */
     public function destroy( string $username ) {
         try {
-            if (User::all()->where('role', 'Admin')->count() > 1) {
-                if ( User::where('username', $username )->first() ) {
-                    //User::where('username', $username )->first()->delete();
+            $user = User::where( 'username', $username )->first();
+
+            if ( $user ) {
+                if ( $user->role == 'Admin' ) {
+                    if ( User::all()->where( 'role', 'Admin' )->count() > 1 ) {
+                        User::where( 'username', $username )->first()->delete();
+
+                        return response()->json( [
+                            'message' => 'Successfully deleted'
+                        ], 200 );
+
+                    }
+
+                    return response()->json( [
+                        'message' => 'Not possible because condition not satisfied',
+                    ], 412 );
+                } else {
+                    User::where( 'username', $username )->first()->delete();
 
                     return response()->json( [
                         'message' => 'Successfully deleted'
                     ], 200 );
                 }
-                return response()->json( [
-                    'message' => 'No such user',
-                ], 404 );
             }
 
             return response()->json( [
-                'message' => 'Not possible because condition not satisfied',
-            ], 412 );
-
+                'message' => 'No such user',
+            ], 404 );
         } catch ( QueryException $ex ) {
             if ( env( 'APP_DEBUG' ) ) {
                 $res['message'] = $ex->getMessage();
@@ -232,8 +243,8 @@ class UserController extends Controller {
         ] );
 
         try {
-            if ( Role::where('role', $fields['role'] )->first() ) {
-                $role = Role::where('role', $fields['role'] )->first();
+            if ( Role::where( 'role', $fields['role'] )->first() ) {
+                $role = Role::where( 'role', $fields['role'] )->first();
 
                 $user           = new User;
                 $user->username = $fields['username'];

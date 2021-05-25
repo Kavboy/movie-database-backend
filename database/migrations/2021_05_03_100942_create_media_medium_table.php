@@ -14,8 +14,8 @@ class CreateMediaMediumTable extends Migration
     public function up()
     {
         Schema::create('media_medium', function (Blueprint $table) {
-            $table->foreignId('media_id')->constrained('medias');
-            $table->foreignId('medium_id')->constrained('mediums');
+            $table->unsignedBigInteger('media_id');
+            $table->unsignedBigInteger('medium_id');
         });
     }
 

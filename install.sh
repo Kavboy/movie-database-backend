@@ -18,7 +18,7 @@ while [[ $STATUS -ne 0 ]] && [[ $i -lt 30 ]]; do
 done
 
 if [ $STATUS -ne 0 ]; then
-	echo "PHP Container Error: MSSQL SERVER took more than thirty seconds to start up."
+	echo "PHP Container Error: MSSQL SERVER took more than ninety seconds to start up."
 	exit 1
 fi
 

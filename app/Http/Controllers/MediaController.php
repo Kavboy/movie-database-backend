@@ -565,6 +565,7 @@ class MediaController extends Controller {
                     }
                 }
 
+
                 $media->delete();
 
                 return response()->json( $media, 200 );

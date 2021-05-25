@@ -92,11 +92,11 @@ class Media extends Model {
      *
      * @return void
      */
-    protected static function booted() {
+/*    protected static function booted() {
         static::deleting( function ( $media ) {
             $media->user()->detach();
             $media->genre()->detach();
             $media->medium()->detach();
         } );
-    }
+    }*/
 }

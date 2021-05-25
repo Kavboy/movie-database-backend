@@ -89,9 +89,9 @@ class User extends Authenticatable
      *
      * @return void
      */
-    protected static function booted() {
+/*    protected static function booted() {
         static::deleting(function ($user) {
             $user->media()->detach();
         });
-    }
+    }*/
 }
