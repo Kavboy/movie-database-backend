@@ -11,7 +11,7 @@ CREATE OR ALTER TRIGGER trigger_after_action_media
                            WHEN EXISTS(SELECT * FROM inserted)
                                THEN 'Insert' -- Set Action to Insert.
                            WHEN EXISTS(SELECT * FROM deleted)
-                               THEN 'Deleted' -- Set Action to Deleted.
+                               THEN 'Delete' -- Set Action to Deleted.
                         END)
         IF EXISTS (SELECT * FROM [dbo].[statistics] WHERE action = @action AND month = @month AND year = @year)
             BEGIN

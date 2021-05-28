@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AgeRatingController;
 use App\Http\Controllers\MediumController;
@@ -44,12 +45,16 @@ Route::group( [ 'prefix' => '/v1' ], function () {
     Route::middleware( [ 'auth:sanctum' ] )->group( function () {
         Route::post( '/logout', [ UserController::class, 'logout' ] );
 
+        Route::group( [ 'prefix' => '/statistic' ], function () {
+            Route::get( '', [ StatisticController::class, 'index' ] )->middleware( [ 'role:Admin' ] );
+        } );
+
         Route::group( [ 'prefix' => '/user' ], function () {
             Route::get( '', [ UserController::class, 'index' ] )->middleware( [ 'role:Admin' ] );
             Route::get( '/table', [ UserController::class, 'table' ] )->middleware( [ 'role:Admin' ] );
             Route::get( '/whoami', function ( Request $request ) {
                 return $request->user();
-            } );
+            } )->middleware( [ 'role:Admin:Creator:User' ] );;
             Route::post( '/change_password', [
                 UserController::class,
                 'changeOwnPasswordRequest'
@@ -96,7 +101,7 @@ Route::group( [ 'prefix' => '/v1' ], function () {
             Route::delete( '/{id}', [ MediumController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
         } );
 
-        Route::get('genre', [GenreController::class, 'index'])->middleware(['role:Admin:Creator']);
+        Route::get( 'genre', [ GenreController::class, 'index' ] )->middleware( [ 'role:Admin:Creator' ] );
 
         /**
          * FSk routes
