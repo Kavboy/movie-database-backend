@@ -109,7 +109,7 @@ class UserController extends Controller {
      */
     public function update( Request $request, string $username ) {
         $fields = $request->validate( [
-            'username' => [ 'string', 'max:255', 'unique:users' ],
+            'username' => [ 'string', 'max:255' ],
             'role'     => [ 'string' ]
         ] );
 
@@ -332,7 +332,6 @@ class UserController extends Controller {
      * @return \Illuminate\Http\JsonResponse
      */
     public function changeOwnPasswordRequest( Request $request ) {
-
         try {
             $fields = $request->validate( [
                 'old_password' => [ 'required', 'filled' ],
@@ -379,10 +378,10 @@ class UserController extends Controller {
     public function changePasswordRequest( Request $request, string $username ) {
         try {
             $fields = $request->validate( [
-                'new_password' => [ 'required', 'filled', 'min:8' ],
+                'password' => [ 'required', 'filled', 'confirmed', 'min:8' ],
             ] );
 
-            $this->changePassword( $username, $fields['new_password'] );
+            $this->changePassword( $username, $fields['password'] );
 
             $res['success'] = true;
 

@@ -54,7 +54,7 @@ Route::group( [ 'prefix' => '/v1' ], function () {
                 UserController::class,
                 'changeOwnPasswordRequest'
             ] )->middleware( [ 'role:Admin:Creator:User' ] );
-            Route::post( '/admin_change_password', [
+            Route::post( '/admin_change_password/{username}', [
                 UserController::class,
                 'changePasswordRequest'
             ] )->middleware( [ 'role:Admin' ] );
