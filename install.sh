@@ -27,6 +27,9 @@ echo =============== PHP MSSQL STARTED                   =======================
 echo =============== PHP Composer Install                ==========================
 composer install --optimize-autoloader --no-dev
 
+echo =============== PHP Create Key                      ==========================
+php artisan key:generate
+
 echo =============== PHP Clear                           ==========================
 php artisan cache:clear
 php artisan optimize:clear

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class StatisticController extends Controller {
     /**
-     * Display a listing of the resource.
+     * Display a listing of statistics.
      *
      * @return \Illuminate\Http\JsonResponse
      */

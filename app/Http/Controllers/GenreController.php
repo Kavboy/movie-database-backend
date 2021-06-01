@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class GenreController extends Controller {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the genres.
      *
      * @return \Illuminate\Http\Response
      */
@@ -20,8 +20,6 @@ class GenreController extends Controller {
 
                 return response( $genres, 200 );
             } else {
-                error_log( 'else' );
-
                 return response( '', 404 );
             }
         } catch ( QueryException $ex ) {

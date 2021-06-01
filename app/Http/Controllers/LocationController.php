@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class LocationController extends Controller {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the locations.
      *
      * @return \Illuminate\Http\Response
      */
@@ -35,7 +35,7 @@ class LocationController extends Controller {
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created location in storage.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -65,35 +65,7 @@ class LocationController extends Controller {
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show( $id ) {
-        try {
-            if ( Location::find( $id ) ) {
-                $location = Location::find( $id );
-
-                return response( $location, 200 );
-            } else {
-                return response( '', 404 );
-            }
-        } catch ( \Illuminate\Database\QueryException $ex ) {
-            if ( env( 'APP_DEBUG' ) ) {
-                $res['message'] = $ex->getMessage();
-            } else {
-                Log::error( $ex );
-                $res['message'] = 'Something unexpected happened, please try again later';
-            }
-
-            return response( $res, 500 );
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Update the specified location in storage.
      *
      * @param \Illuminate\Http\Request $request
      * @param int $id
@@ -126,7 +98,7 @@ class LocationController extends Controller {
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified location from storage.
      *
      * @param int $id
      *

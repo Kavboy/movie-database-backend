@@ -17,7 +17,7 @@ use Illuminate\Validation\Rule;
 
 class MediaController extends Controller {
     /**
-     * Display a listing of the resource.
+     * Display a listing of medias, with hidden elements.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -79,7 +79,7 @@ class MediaController extends Controller {
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of medias with all data.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -216,7 +216,7 @@ class MediaController extends Controller {
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of searched media titles.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -247,7 +247,7 @@ class MediaController extends Controller {
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created media in storage.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -308,7 +308,6 @@ class MediaController extends Controller {
 
             if ( Arr::exists( $validated, 'cast' ) ) {
                 if ( $request->hasHeader( 'Content-Type' ) && str_contains( $request->header( 'Content-Type' ), 'multipart/form-data' ) ) {
-                    error_log( 'content type' );
                     $arr = [];
                     foreach ( $validated['cast'] as $cast ) {
                         array_push( $arr, json_decode( $cast ) );
@@ -363,7 +362,7 @@ class MediaController extends Controller {
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified media.
      *
      * @param int $id
      *
@@ -392,7 +391,7 @@ class MediaController extends Controller {
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified media in storage.
      *
      * @param \Illuminate\Http\Request $request
      * @param int $id
@@ -421,11 +420,9 @@ class MediaController extends Controller {
         ] );
 
         try {
-            error_log( $id );
             $media = Media::find( $id );
 
             if ( Arr::exists( $validated, 'type' ) ) {
-                error_log( $validated['type'] );
                 $media->type = $validated['type'];
             }
 
@@ -538,7 +535,7 @@ class MediaController extends Controller {
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified media from storage.
      *
      * @param int $id
      *

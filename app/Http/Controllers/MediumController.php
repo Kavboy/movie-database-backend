@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class MediumController extends Controller {
     /**
-     * Display a listing of the resource.
+     * Display a listing of mediums.
      *
      * @return \Illuminate\Http\Response
      */
@@ -20,8 +20,6 @@ class MediumController extends Controller {
 
                 return response( $mediums, 200 );
             } else {
-                error_log( 'else' );
-
                 return response( '', 404 );
             }
         } catch ( QueryException $ex ) {
@@ -37,7 +35,7 @@ class MediumController extends Controller {
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created medium in storage.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -67,35 +65,7 @@ class MediumController extends Controller {
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show( int $id ) {
-        try {
-            if ( Medium::find( $id ) ) {
-                $medium = Medium::find( $id );
-
-                return response( $medium, 200 );
-            } else {
-                return response( '', 404 );
-            }
-        } catch ( QueryException $ex ) {
-            if ( env( 'APP_DEBUG' ) ) {
-                $res['message'] = $ex->getMessage();
-            } else {
-                Log::error( $ex );
-                $res['message'] = 'Something unexpected happened, please try again later';
-            }
-
-            return response( $res, 500 );
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Update the specified medium in storage.
      *
      * @param \Illuminate\Http\Request $request
      * @param int $id
@@ -128,7 +98,7 @@ class MediumController extends Controller {
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified medium from storage.
      *
      * @param int $id
      *

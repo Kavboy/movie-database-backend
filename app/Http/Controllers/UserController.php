@@ -5,43 +5,30 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use function Symfony\Component\String\u;
 
 class UserController extends Controller {
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the users.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function index( Request $request ) {
 
-        $perPage = env( 'PER_PAGE', 5 );
+        $perPage = env( 'PER_PAGE', 10 );
 
         if ( $request->get( 'per_page' ) ) {
             $perPage = $request->get( 'per_page' );
         }
 
-        if ( User::all() ) {
-            $users = User::paginate( $perPage );
-
-            return response()->json( $users, 200 );
-        } else {
-            return response()->json( [], 404 );
-        }
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function table( Request $request ) {
         try {
-            $users = User::orderBy( 'id' )->paginate( 10 );
+            $users = User::orderBy( 'id' )->paginate( $perPage );
 
             $data = $users->getCollection();
             $data->each( function ( $item ) {
@@ -66,14 +53,15 @@ class UserController extends Controller {
 
             return response()->json( $res, 500 );
         }
+
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified user.
      *
      * @param string $username
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function show( string $username ) {
         try {
@@ -100,17 +88,35 @@ class UserController extends Controller {
     }
 
     /**
-     * Update the specified resource in storage.
+     * Method to update data of authenticated user
      *
-     * @param \Illuminate\Http\Request $request
-     * @param string $username
+     * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function update( Request $request, string $username ) {
+    public function updateOwn(Request $request) {
         $fields = $request->validate( [
             'username' => [ 'string', 'max:255' ],
-            'role'     => [ 'string' ]
+            'role'     => [ 'string', 'exists:roles,role' ]
+        ] );
+
+        $user = $request->user();
+
+        return $this->update($user, $fields);
+    }
+
+    /**
+     * Method to update other users
+     *
+     * @param Request $request
+     * @param string $username
+     *
+     * @return JsonResponse
+     */
+    public function updateOthers(Request $request, string $username) {
+        $fields = $request->validate( [
+            'username' => [ 'string', 'max:255' ],
+            'role'     => [ 'string', 'exists:roles,role' ]
         ] );
 
         try {
@@ -122,6 +128,31 @@ class UserController extends Controller {
                 ], 404 );
             }
 
+            return $this->update($user, $fields );
+
+        } catch ( QueryException $ex ) {
+            if ( env( 'APP_DEBUG' ) ) {
+                $res['message'] = $ex->getMessage();
+            } else {
+                Log::error( $ex );
+                $res['message'] = 'Something unexpected happened, please try again later';
+            }
+
+            return response()->json( $res, 500 );
+        }
+
+    }
+
+    /**
+     * Util to update user data
+     *
+     * @param User $user
+     * @param array $fields
+     *
+     * @return JsonResponse
+     */
+    public function update( User $user, array $fields) {
+        try {
             if ( $fields['username'] ) {
                 $user->username = $fields['username'];
             }
@@ -159,12 +190,14 @@ class UserController extends Controller {
         }
     }
 
+
+
     /**
-     * Remove the specified resource from storage.
+     * Removes the logged in user from storage.
      *
      * @param string $username
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function destroyOwn( Request $request ) {
         try {
@@ -182,11 +215,11 @@ class UserController extends Controller {
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified user from storage.
      *
      * @param string $username
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function destroy( string $username ) {
         try {
@@ -231,9 +264,11 @@ class UserController extends Controller {
     }
 
     /**
+     * Creation of new users
+     *
      * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function store( Request $request ) {
         $fields = $request->validate( [
@@ -277,9 +312,11 @@ class UserController extends Controller {
     }
 
     /**
+     * For login of users
+     *
      * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function login( Request $request ) {
         $fields = $request->validate( [
@@ -315,12 +352,10 @@ class UserController extends Controller {
     /**
      * Logout of the user
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function logout( Request $request ) {
         Auth::guard( 'web' )->logout();
-        error_log( $request->session()->getId() );
-
         return response()->json( [ 'message' => 'Logged Out' ], 200 );
     }
 
@@ -329,7 +364,7 @@ class UserController extends Controller {
      *
      * @param Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function changeOwnPasswordRequest( Request $request ) {
         try {
@@ -373,12 +408,12 @@ class UserController extends Controller {
      * @param Request $request
      * @param string $username
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function changePasswordRequest( Request $request, string $username ) {
         try {
             $fields = $request->validate( [
-                'password' => [ 'required', 'filled', 'confirmed', 'min:8' ],
+                'new_password' => [ 'required', 'filled', 'confirmed', 'min:8' ],
             ] );
 
             $this->changePassword( $username, $fields['password'] );
