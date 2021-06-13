@@ -8,6 +8,7 @@ use App\Http\Controllers\AgeRatingController;
 use App\Http\Controllers\MediumController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MediaController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -69,24 +70,26 @@ Route::group( [ 'prefix' => '/v1' ], function () {
             Route::delete( '/{username}', [ UserController::class, 'destroy' ] )->middleware( [ 'role:Admin' ] );
         } );
 
-        Route::group( [ 'prefix' => 'media' ], function () {
+        Route::group( [ 'prefix' => '/media' ], function () {
             Route::get( '/table', [ MediaController::class, 'table' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::put( '', [ MediaController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::patch( '/{id}', [ MediaController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::delete( '/{id}', [ MediaController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::post( '/mark_seen/{id}', [ MediaController::class, 'markSeen' ] )->middleware( [ 'role:Admin:Creator:User' ] );
+            Route::post( '/mark_unseen/{id}', [ MediaController::class, 'markUnseen' ] )->middleware( [ 'role:Admin:Creator:User' ] );
         } );
 
         /**
          * Role routes
          */
-        Route::group( [ 'prefix' => 'role' ], function () {
+        Route::group( [ 'prefix' => '/role' ], function () {
             Route::get( '', [ RoleController::class, 'index' ] )->middleware( [ 'role:Admin' ] );
         } );
 
         /**
          * Medium routes
          */
-        Route::group( [ 'prefix' => 'medium' ], function () {
+        Route::group( [ 'prefix' => '/medium' ], function () {
             Route::get( '', [ MediumController::class, 'index' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::put( '', [ MediumController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::patch( '', [ MediumController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
@@ -98,14 +101,14 @@ Route::group( [ 'prefix' => '/v1' ], function () {
         /**
          * FSk routes
          */
-        Route::group( [ 'prefix' => 'fsk' ], function () {
+        Route::group( [ 'prefix' => '/fsk' ], function () {
             Route::get( '', [ AgeRatingController::class, 'index' ] )->middleware( [ 'role:Admin:Creator' ] );
         } );
 
         /**
          * Location routes
          */
-        Route::group( [ 'prefix' => 'location' ], function () {
+        Route::group( [ 'prefix' => '/location' ], function () {
             Route::get( '', [ LocationController::class, 'index' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::put( '', [ LocationController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::patch( '', [ LocationController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );

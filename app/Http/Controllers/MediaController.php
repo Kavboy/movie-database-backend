@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Location;
 use App\Models\Medium;
 use App\Models\Media;
+use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -43,6 +44,7 @@ class MediaController extends Controller {
                     'location',
                     'release_date',
                     'genres',
+                    'seasons',
                     'mediums'
                 ] ) );
 
@@ -58,6 +60,7 @@ class MediaController extends Controller {
                     'location',
                     'release_date',
                     'genres',
+                    'seasons',
                     'mediums'
                 ] ) );
 
@@ -65,6 +68,75 @@ class MediaController extends Controller {
             } else {
                 return response()->json( [], 404 );
             }
+        } catch ( QueryException $ex ) {
+
+            if ( env( 'APP_DEBUG' ) ) {
+                $res['message'] = $ex->getMessage();
+            } else {
+                Log::error( $ex );
+                $res['message'] = 'Something unexpected happened, please try again later';
+            }
+
+            return response()->json( $res, 500 );
+        }
+    }
+
+    /**
+     * Method to mark media as seen by the user
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markSeen( Request $request, $id ) {
+        try {
+            $media = Media::find( $id );
+
+            if ( $media ) {
+                $media->user()->detach($request->user());
+                $media->user()->attach($request->user());
+                return response()->json( 'Marked successfully', 200 );
+            } else {
+                return response()->json( 'No such media', 404 );
+            }
+
+
+        } catch ( QueryException $ex ) {
+
+            if ( env( 'APP_DEBUG' ) ) {
+                $res['message'] = $ex->getMessage();
+            } else {
+                Log::error( $ex );
+                $res['message'] = 'Something unexpected happened, please try again later';
+            }
+
+            return response()->json( $res, 500 );
+        }
+    }
+
+    /**
+     * Method to mark media as unseen by user
+     *
+     * @param $id
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markUnseen( $id, Request $request ) {
+        try {
+            $media = Media::find( $id );
+
+
+            if ( $media ) {
+                $media->user()->detach( $request->user() );
+
+                return response()->json( 'Marked unseen successfully', 200 );
+            } else {
+                return response()->json( 'No such media', 404 );
+            }
+
+
         } catch ( QueryException $ex ) {
 
             if ( env( 'APP_DEBUG' ) ) {
@@ -320,7 +392,7 @@ class MediaController extends Controller {
             }
 
             if ( Arr::exists( $validated, 'seasons' ) ) {
-                $media->seasons = json_encode($validated['seasons']);
+                $media->seasons = json_encode( $validated['seasons'] );
             }
 
             $ageRating = AgeRating::where( 'fsk', $validated['age_rating'] )->first();
@@ -478,7 +550,7 @@ class MediaController extends Controller {
             }
 
             if ( Arr::exists( $validated, 'seasons' ) ) {
-                $media->seasons = json_encode($validated['seasons']);
+                $media->seasons = json_encode( $validated['seasons'] );
             }
 
             if ( Arr::exists( $validated, 'age_rating' ) ) {

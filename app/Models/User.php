@@ -10,6 +10,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected $appends = [ 'seen_media' ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -28,10 +30,16 @@ class User extends Authenticatable
     protected $hidden = [
         'id',
         'password',
+        'updated_at',
+        'created_at'
     ];
 
     public function getRoleAttribute($value) {
         return Role::find($value) ? Role::find($value)['role'] : NULL;
+    }
+
+    public function getSeenMediaAttribute() {
+        return $this->media()->pluck('id');
     }
 
     /**
