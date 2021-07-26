@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -39,7 +40,12 @@ class User extends Authenticatable
     }
 
     public function getSeenMediaAttribute() {
-        return $this->media()->pluck('id');
+
+        return DB::table('user_media')
+                 ->selectRaw('media_id, count(*) as seen')
+                 ->where('user_id', $this->setHidden(['password, updated_at, created_at'])->setVisible(['id'])->id)
+                 ->groupBy('media_id')
+                 ->get()->pluck('seen', 'media_id');
     }
 
     /**
@@ -57,7 +63,7 @@ class User extends Authenticatable
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function media(){
-        return $this->belongsToMany(Media::class, 'user_media');
+        return $this->belongsToMany(Media::class, 'user_media')->withTimestamps();
     }
 
     /**

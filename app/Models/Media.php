@@ -48,7 +48,7 @@ class Media extends Model {
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function user() {
-        return $this->belongsToMany( User::class, 'user_media' );
+        return $this->belongsToMany( User::class, 'user_media' )->withTimestamps();
     }
 
     /**

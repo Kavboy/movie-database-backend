@@ -325,15 +325,18 @@ class UserController extends Controller {
         ] );
 
         try {
+            error_log('test');
 
             if ( Auth::guard( 'web' )->attempt( [
                 'username' => $fields['username'],
                 'password' => $fields['password']
             ] ) ) {
+                error_log('get session');
                 $request->session()->regenerate();
 
                 return response()->json( Auth::user(), 200 );
             } else {
+                error_log('wrong credentials');
                 return response()->json( "Provided credentials wrong", 401 );
             }
 

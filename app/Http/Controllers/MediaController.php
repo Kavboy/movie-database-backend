@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -94,9 +95,8 @@ class MediaController extends Controller {
             $media = Media::find( $id );
 
             if ( $media ) {
-                $media->user()->detach($request->user());
                 $media->user()->attach($request->user());
-                return response()->json( 'Marked successfully', 200 );
+                return response()->json( 'Increased seen count successfully', 200 );
             } else {
                 return response()->json( 'No such media', 404 );
             }
@@ -125,15 +125,22 @@ class MediaController extends Controller {
      */
     public function markUnseen( $id, Request $request ) {
         try {
-            $media = Media::find( $id );
+            $media = $request->user()->media()->wherePivot('media_id', $id)->first();
 
 
             if ( $media ) {
-                $media->user()->detach( $request->user() );
+                $last = DB::table($request->user()->media()->getTable())
+                          ->where('media_id', $id)
+                          ->orderBy('created_at', 'desc')
+                          ->first();
+                DB::table($request->user()->media()->getTable())
+                  ->where('created_at', '=', $last->created_at)
+                  ->delete();
+                return response()->json( 'Reduced seen count successfully', 200 );
 
-                return response()->json( 'Marked unseen successfully', 200 );
+
             } else {
-                return response()->json( 'No such media', 404 );
+                return response()->json( 'Not yet seen', 404 );
             }
 
 

@@ -13,6 +13,7 @@
         "laravel/sanctum": "^2.10",
         "laravel/tinker": "^2.5",
         "vkovic/laravel-commando": "^0.2.0",
+        "gecche/laravel-multidomain": "4.*",
         "ext-json": "*"
     },
     "require-dev": {
