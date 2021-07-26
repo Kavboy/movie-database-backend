@@ -14,8 +14,8 @@ class CreateMediaGenreTable extends Migration
     public function up()
     {
         Schema::create('media_genre', function (Blueprint $table) {
-            $table->unsignedBigInteger('media_id');
-            $table->unsignedBigInteger('genre_id');
+            $table->foreignId('media_id')->references('id')->on('medias')->constrained()->onDelete('cascade');
+            $table->foreignId('genre_id')->references('id')->on('genres')->constrained()->onDelete('cascade');
         });
     }
 

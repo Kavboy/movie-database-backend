@@ -15,7 +15,7 @@ class CreateStatisticsTable extends Migration
     {
         Schema::create('statistics', function (Blueprint $table) {
             $table->primary(['month', 'year', 'action']);
-            $table->unsignedInteger('month');
+            $table->string('month', 10);
             $table->unsignedBigInteger('year');
             $table->string('action', 255);
             $table->unsignedBigInteger('count');
