@@ -1,4 +1,3 @@
-#!/bin/bash
 if [ -f "./.installed" ]; then
     exit 0
 fi
