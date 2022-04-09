@@ -21,8 +21,8 @@ class UserTableSeeder extends Seeder {
 
         $user = new User;
 
-        $user->username = 'admin';
-        $user->password = bcrypt( 'admin123' );
+        $user->username = env('APP_API_ADMIN_USERNAME','admin');
+        $user->password = bcrypt( env('APP_API_ADMIN_PASSWORD', 'admin123') );
         $user->role()->associate( $role );
 
         $user->save();
