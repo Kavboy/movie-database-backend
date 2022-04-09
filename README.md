@@ -7,8 +7,10 @@ It is based on Laravel and a MSSQL database.
 Requirements:
 * Docker with docker-compose.
 
+Copy the .env.example to a .env file and make the needed changes you want.
+The standard user for the REST API is admin with the password admin123, please change the password in the file ''database/seeders/UserTableSeeder.php''
 
-For the installation execute 
+Then execute 
 ```
 docker-compose up -d
 ```
