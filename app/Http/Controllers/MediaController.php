@@ -256,7 +256,8 @@ class MediaController extends Controller {
             $mediaQuery = Media::query();
 
             $mediaQuery->when( Arr::exists( $validated, 'title' ), function ( $query ) use ( $title ) {
-                return $query->where( 'title', 'LIKE', "%{$title}%" );
+                $searchValue = str_ireplace(' ', '%', $title);
+                return $query->where( 'title', 'LIKE', "%{$searchValue}%" );
             } );
 
             $mediaQuery->when( Arr::exists( $validated, 'mediums' ), function ( $query ) use ( $mediums ) {
@@ -304,9 +305,11 @@ class MediaController extends Controller {
             'title' => [ 'required', 'max:255', 'string', 'filled' ],
         ] );
 
+        $query = str_ireplace(' ', '%', $validated['title']);
+
         try {
-            if ( Media::where( 'title', 'LIKE', "%{$validated['title']}%" ) ) {
-                $titles = Media::where( 'title', 'LIKE', "%{$validated['title']}%" )->take( 10 )->orderBy( 'title' )->pluck( 'title' );
+            if ( Media::where( 'title', 'LIKE', "%{$query}%" ) ) {
+                $titles = Media::where( 'title', 'LIKE', "%{$query}%" )->take( 10 )->orderBy( 'title' )->pluck( 'title' );
 
                 return response()->json( $titles, 200 );
             } else {
@@ -336,7 +339,7 @@ class MediaController extends Controller {
 
         $validated = $request->validate( [
             'type'         => [ 'required', Rule::in( [ 'Movie', 'TV' ] ) ],
-            'title'        => [ 'required', 'max:255', 'string', 'filled', 'unique:medias,title' ],
+            'title'        => [ 'required', 'max:255', 'string', 'filled' ],
             'release_date' => [ 'required', 'filled', 'date_format:Y-m-d' ],
             'overview'     => [ 'string', 'nullable' ],
             'poster_file'  => [ 'file', 'mimes:jpg,png,webp' ],

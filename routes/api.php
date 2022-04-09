@@ -111,8 +111,8 @@ Route::group( [ 'prefix' => '/v1' ], function () {
         Route::group( [ 'prefix' => '/location' ], function () {
             Route::get( '', [ LocationController::class, 'index' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::put( '', [ LocationController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
-            Route::patch( '', [ LocationController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
-            Route::delete( '', [ LocationController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::patch( '/{id}', [ LocationController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::delete( '/{id}', [ LocationController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
         } );
     } );
 } );

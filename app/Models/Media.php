@@ -23,7 +23,8 @@ class Media extends Model {
     ];
 
     public function getAgeRatingAttribute( $value ) {
-        return AgeRating::find( $value ) ? AgeRating::find( $value )['fsk'] : '';
+        $fsk = AgeRating::find( $value );
+        return $fsk ? $fsk['fsk'] : '';
     }
 
     public function getGenresAttribute() {
@@ -32,6 +33,11 @@ class Media extends Model {
 
     public function getMediumsAttribute() {
         return $this->medium()->pluck( 'medium' );
+    }
+
+    public function getLocationAttribute($value) {
+        $location = Location::find($value);
+        return $location ? $location['location'] : '';
     }
 
     public function getCastAttribute($value) {
