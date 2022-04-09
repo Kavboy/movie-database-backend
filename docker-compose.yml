@@ -1,16 +1,26 @@
-version: '3'
+version: "3.9"
 services:
-  mssql:
-    container_name: mssql
-    build:
-      context: docker/mssql
-    ports:
-      - "1433:1433"
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    environment:
+      - MARIADB_DATABASE=${DB_DATABASE}
+      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    healthcheck:
+      test: '/usr/bin/mysql --user=${DB_USERNAME} --password=${DB_PASSWORD} --execute "SHOW DATABASES;"'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     volumes:
-      - ./docker/mssql/data:/var/opt/mssql/data
+      - ./mariadb/data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     networks:
       - mediadatabase
-
   php:
     container_name: php
     build:
@@ -19,8 +29,11 @@ services:
     working_dir: /var/www
     volumes:
       - ./:/var/www
+    depends_on:
+      mariadb:
+        condition: service_healthy
     links:
-      - mssql
+      - mariadb
     networks:
       - mediadatabase
 
