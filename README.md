@@ -27,10 +27,9 @@ in the root directory. After successfully execution the REST API is available at
 
 ### Fresh install
 
-Since docker does not wait for container setup, there needed to be a separate routine to setup the environment.
-So to completely reinstall the docker environment, you need to delete the following folders and files:
+Since docker does not wait for container setup, there needed to be a separate routine to setup the laravel environment.
+So to completely reinstall the docker environment, you need to delete the following file:
 
 -   .installed
--   'docker/mariadb/data
 
 You need to also remove the docker containers and images.

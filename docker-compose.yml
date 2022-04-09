@@ -15,8 +15,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    volumes:
-      - ./mariadb/data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
