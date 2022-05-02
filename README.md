@@ -9,7 +9,14 @@ Requirements:
 
 Copy the .env.example to a .env file and make the needed changes you want.
 
-Then execute 
+Make sure, that the files:
+
+-   docker/php/entrypoint.sh
+-   installed.sh
+    Have the Line Sequence as LN instead of CRLF
+
+Then execute
+
 ```
 docker-compose up -d
 ```
