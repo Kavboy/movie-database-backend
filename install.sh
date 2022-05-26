@@ -28,6 +28,9 @@ php artisan migrate --seed
 echo =============== PHP New Route cache                 ==========================
 php artisan route:cache
 
+echo =============== PHP create storage link             ==========================
+php artisan storage:link
+
 echo =============== PHP Optimize                        ==========================
 php artisan optimize
 

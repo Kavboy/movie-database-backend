@@ -14,7 +14,8 @@
         "laravel/tinker": "^2.5",
         "vkovic/laravel-commando": "^0.2.0",
         "gecche/laravel-multidomain": "4.*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
