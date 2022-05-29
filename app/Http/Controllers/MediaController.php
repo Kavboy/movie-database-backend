@@ -353,7 +353,7 @@ class MediaController extends Controller {
             'mediums.*'    => [ 'required', 'exists:mediums,medium' ],
             'genres'       => [ 'required', 'array' ],
             'genres.*'     => [ 'required', 'exists:genres,name' ],
-            'seasons'      => [ 'array' ],
+            'seasons'      => [ 'nullable', 'array' ],
             'seasons.*'    => [ 'string' ]
         ] );
 
@@ -497,7 +497,7 @@ class MediaController extends Controller {
             'mediums.*'    => [ 'exists:mediums,medium' ],
             'genres'       => [ 'array' ],
             'genres.*'     => [ 'exists:genres,name' ],
-            'seasons'      => [ 'array' ],
+            'seasons'      => [ 'nullable', 'array' ],
             'seasons.*'    => [ 'string' ]
         ] );
 
