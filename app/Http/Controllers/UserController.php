@@ -202,6 +202,7 @@ class UserController extends Controller {
     public function destroyOwn( Request $request ) {
         try {
             $this->destroy( $request->user()->username );
+            return response()->json( 'Successfully', 200 );
         } catch ( QueryException $ex ) {
             if ( env( 'APP_DEBUG' ) ) {
                 $res['message'] = $ex->getMessage();
@@ -325,8 +326,6 @@ class UserController extends Controller {
         ] );
 
         try {
-            error_log('test');
-
             if ( Auth::guard( 'web' )->attempt( [
                 'username' => $fields['username'],
                 'password' => $fields['password']

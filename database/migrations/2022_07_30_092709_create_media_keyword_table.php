@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGenresTable extends Migration
+class CreateMediaKeywordTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateGenresTable extends Migration
      */
     public function up()
     {
-        Schema::create('genres', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 20)->unique();
+        Schema::create('media_keyword', function (Blueprint $table) {
+            $table->foreignId('media_id')->references('id')->on('medias')->onDelete('cascade');
+            $table->foreignId('keyword_id')->references('id')->on('keywords')->onDelete('cascade');
         });
     }
 
@@ -26,6 +26,6 @@ class CreateGenresTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('genres');
+        Schema::dropIfExists('media_keyword');
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\KeywordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\UserController;
@@ -113,6 +114,16 @@ Route::group( [ 'prefix' => '/v1' ], function () {
             Route::put( '', [ LocationController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::patch( '/{id}', [ LocationController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::delete( '/{id}', [ LocationController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
+        } );
+
+        /**
+         * Keywords routes
+         */
+        Route::group( [ 'prefix' => '/keyword' ], function () {
+            Route::get( '', [ KeywordController::class, 'index' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::put( '', [ KeywordController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::patch( '', [ KeywordController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::delete( '/{keyword}', [ KeywordController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
         } );
     } );
 } );

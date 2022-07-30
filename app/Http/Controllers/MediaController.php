@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AgeRating;
 use App\Models\Genre;
+use App\Models\Keyword;
 use App\Models\Location;
 use App\Models\Medium;
 use App\Models\Media;
@@ -226,7 +227,9 @@ class MediaController extends Controller {
             'genres'        => [ 'array' ],
             'genres.*'      => [ 'string', 'exists:genres,name' ],
             'age_ratings'   => [ 'array' ],
-            'age_ratings.*' => [ 'exists:age_ratings,fsk' ]
+            'age_ratings.*' => [ 'exists:age_ratings,fsk' ],
+            'keywords'   => [ 'array' ],
+            'keywords.*' => [ 'exists:keywords,keyword' ]
         ] );
 
         try {
@@ -257,7 +260,11 @@ class MediaController extends Controller {
 
             $mediaQuery->when( Arr::exists( $validated, 'title' ), function ( $query ) use ( $title ) {
                 $searchValue = str_ireplace(' ', '%', $title);
-                return $query->where( 'title', 'LIKE', "%{$searchValue}%" );
+                return $query->where( 'title', 'LIKE', "%{$searchValue}%" )->orWhere(function($query) use ($title) {
+                    $query->whereHas('keyword', function($query) use ($title) {
+                        $query->whereIn('keyword', [$title] );
+                    });
+                });
             } );
 
             $mediaQuery->when( Arr::exists( $validated, 'mediums' ), function ( $query ) use ( $mediums ) {
@@ -345,7 +352,7 @@ class MediaController extends Controller {
             'poster_file'  => [ 'file', 'mimes:jpg,png,webp' ],
             'poster_path'  => [ 'string', 'filled', 'max:255' ],
             'tmdb_id'      => [ 'numeric', 'integer' ],
-            'youtube_link' => [ 'nullable', 'string', 'regex:/^([a-zA-Z\d\-_&=])+$/' ],
+            'youtube_link' => [ 'nullable', 'string', 'regex:/^(http(s)?:\/\/)?(www\.)?youtu(\.)?be(\.com)?\/(watch\?v=)?([a-zA-Z\d\-_&=?]+)$/' ],
             'cast'         => [ 'array' ],
             'age_rating'   => [ 'required', 'exists:age_ratings,fsk' ],
             'location'     => [ 'max:255' ],
@@ -354,7 +361,9 @@ class MediaController extends Controller {
             'genres'       => [ 'required', 'array' ],
             'genres.*'     => [ 'required', 'exists:genres,name' ],
             'seasons'      => [ 'nullable', 'array' ],
-            'seasons.*'    => [ 'string' ]
+            'seasons.*'    => [ 'string' ],
+            'keywords'     => [ 'nullable', 'array' ],
+            'keywords.*'   => [ 'string' ]
         ] );
 
         try {
@@ -429,6 +438,13 @@ class MediaController extends Controller {
                 $media->genre()->attach( $genre_element );
             }
 
+            if ( Arr::exists( $validated, 'keywords' ) ) {
+                foreach ( $validated['keywords'] as $keyword ) {
+                    $keyword_element = Keyword::firstOrCreate( [ 'keyword', $keyword ] );
+                    $media->keyword()->attach( $keyword_element );
+                }
+            }
+
 
             return response( $media, 201 );
         } catch ( QueryException $ex ) {
@@ -489,7 +505,7 @@ class MediaController extends Controller {
             'poster_file'  => [ 'file', 'mimes:jpg,png,webp' ],
             'poster_path'  => [ 'string', 'filled', 'max:255' ],
             'tmdb_id'      => [ 'numeric', 'integer' ],
-            'youtube_link' => [ 'nullable', 'string', 'regex:/^([a-zA-Z\d\-_&=])+$/' ],
+            'youtube_link' => [ 'nullable', 'string', 'regex:/^(http(s)?:\/\/)?(www\.)?youtu(\.)?be(\.com)?\/(watch\?v=)?([a-zA-Z\d\-_&=?]+)$/' ],
             'cast'         => [ 'array' ],
             'age_rating'   => [ 'exists:age_ratings,fsk' ],
             'location'     => [ 'max:255' ],
@@ -498,7 +514,9 @@ class MediaController extends Controller {
             'genres'       => [ 'array' ],
             'genres.*'     => [ 'exists:genres,name' ],
             'seasons'      => [ 'nullable', 'array' ],
-            'seasons.*'    => [ 'string' ]
+            'seasons.*'    => [ 'string' ],
+            'keywords'     => [ 'nullable', 'array' ],
+            'keywords.*'     => [ 'string' ]
         ] );
 
         try {
@@ -600,6 +618,15 @@ class MediaController extends Controller {
                 foreach ( $validated['genres'] as $genre ) {
                     $genre_element = Genre::where( 'name', $genre )->first();
                     $media->genre()->attach( $genre_element );
+                }
+            }
+
+            if (Arr::exists($validated, 'keywords')) {
+                $media->keyword()->detach();
+
+                foreach ( $validated['keywords'] as $keyword ) {
+                    $keyword_element = Keyword::firstOrCreate( ['keyword' => $keyword] );
+                    $media->keyword()->attach( $keyword_element );
                 }
             }
 
