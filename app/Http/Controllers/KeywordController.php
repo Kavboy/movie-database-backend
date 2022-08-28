@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Keyword;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 class KeywordController extends Controller
@@ -16,8 +17,8 @@ class KeywordController extends Controller
      */
     public function index(): \Illuminate\Http\Response {
         try {
-            if ( Keyword::all() ) {
-                $keywords = Keyword::all();
+            $keywords = Keyword::paginate( 10 );
+            if ( $keywords ) {
 
                 return response( $keywords, 200 );
             } else {
@@ -36,6 +37,50 @@ class KeywordController extends Controller
     }
 
     /**
+     * Display a listing of the searched medias.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search( Request $request ) {
+        $validated = $request->validate( [
+            'keyword' => [ 'max:255', 'string', 'nullable' ]
+        ] );
+
+        try {
+
+            $keyword      = null;
+
+            if ( Arr::exists( $validated, 'keyword' ) ) {
+                $keyword = $validated['keyword'];
+            }
+
+
+            $keywordQuery = Keyword::query();
+
+            // Include keywords in the title search, since users might think a keyword is in the title
+            $keywordQuery->when( Arr::exists( $validated, 'keyword' ), function ( $query ) use ( $keyword ) {
+                $searchValue = str_ireplace(' ', '%', $keyword);
+                return $query->where( 'keyword', 'LIKE', "%{$searchValue}%" );
+            } );
+
+            $keywords = $keywordQuery->paginate(10);
+
+            return response()->json( $keywords, 200 );
+        } catch ( QueryException $ex ) {
+
+            if ( env( 'APP_DEBUG' ) ) {
+                $res['message'] = $ex->getMessage();
+            } else {
+                Log::error( $ex );
+                $res['message'] = 'Something unexpected happened, please try again later';
+            }
+
+            return response()->json( $res, 500 );
+        }
+    }
+
+
+            /**
      * Store a newly created keyword in storage.
      *
      * @param \Illuminate\Http\Request $request
@@ -107,8 +152,10 @@ class KeywordController extends Controller
      */
     public function destroy( string $keyword ) {
         try {
-            if ( Keyword::find( $keyword ) ) {
-                Keyword::find( $keyword )->delete();
+            $found = Keyword::where( 'keyword', $keyword )->first();
+
+            if ( $found ) {
+                $found->delete();
 
                 return response()->json( [
                     'message' => 'Successfully deleted'

@@ -164,8 +164,11 @@ class MediaController extends Controller {
      * @return \Illuminate\Http\JsonResponse
      */
     public function table( Request $request ) {
+        $orderBy = $request->query('orderBy', 'id');
+        $direction = $request->query('direction', 'asc');
+
         try {
-            $medias = Media::orderBy( 'id' )->paginate( 10 );
+            $medias = Media::orderBy( $orderBy, $direction )->paginate( 10 );
             if ( $medias ) {
                 return response()->json( $medias, 200 );
             } else {
@@ -258,11 +261,12 @@ class MediaController extends Controller {
 
             $mediaQuery = Media::query();
 
+            // Include keywords in the title search, since users might think a keyword is in the title
             $mediaQuery->when( Arr::exists( $validated, 'title' ), function ( $query ) use ( $title ) {
                 $searchValue = str_ireplace(' ', '%', $title);
-                return $query->where( 'title', 'LIKE', "%{$searchValue}%" )->orWhere(function($query) use ($title) {
-                    $query->whereHas('keyword', function($query) use ($title) {
-                        $query->whereIn('keyword', [$title] );
+                return $query->where( 'title', 'LIKE', "%{$searchValue}%" )->orWhere(function($query) use ($searchValue) {
+                    $query->whereHas('keyword', function($query) use ($searchValue) {
+                        $query->where('keyword', 'LIKE', "%{$searchValue}%" );
                     });
                 });
             } );
@@ -304,6 +308,7 @@ class MediaController extends Controller {
 
     /**
      * Display a listing of searched media titles.
+     * Also includes keywords in the search, since users might think it is in the title
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -312,12 +317,17 @@ class MediaController extends Controller {
             'title' => [ 'required', 'max:255', 'string', 'filled' ],
         ] );
 
-        $query = str_ireplace(' ', '%', $validated['title']);
+        $searchValue = str_ireplace(' ', '%', $validated['title']);
 
         try {
-            if ( Media::where( 'title', 'LIKE', "%{$query}%" ) ) {
-                $titles = Media::where( 'title', 'LIKE', "%{$query}%" )->take( 10 )->orderBy( 'title' )->pluck( 'title' );
+            $titles = Media::where( 'title', 'LIKE', "%{$searchValue}%" )->orWhere(function($query) use ($searchValue) {
+                $query->whereHas('keyword', function($query) use ($searchValue) {
+                    $query->where('keyword', 'LIKE', "%{$searchValue}%" );
+                });
+            })->take( 10 )->orderBy( 'title' )->pluck( 'title' );
 
+
+            if (sizeof($titles) > 0) {
                 return response()->json( $titles, 200 );
             } else {
                 return response()->json( [], 404 );
@@ -352,7 +362,7 @@ class MediaController extends Controller {
             'poster_file'  => [ 'file', 'mimes:jpg,png,webp' ],
             'poster_path'  => [ 'string', 'filled', 'max:255' ],
             'tmdb_id'      => [ 'numeric', 'integer' ],
-            'youtube_link' => [ 'nullable', 'string', 'regex:/^(http(s)?:\/\/)?(www\.)?youtu(\.)?be(\.com)?\/(watch\?v=)?([a-zA-Z\d\-_&=?]+)$/' ],
+            'youtube_link' => [ 'nullable', 'string', 'regex:/^([a-zA-Z\d\-_&=?]+)$/' ],
             'cast'         => [ 'array' ],
             'age_rating'   => [ 'required', 'exists:age_ratings,fsk' ],
             'location'     => [ 'max:255' ],
@@ -440,7 +450,8 @@ class MediaController extends Controller {
 
             if ( Arr::exists( $validated, 'keywords' ) ) {
                 foreach ( $validated['keywords'] as $keyword ) {
-                    $keyword_element = Keyword::firstOrCreate( [ 'keyword', $keyword ] );
+                    $keyword_element = Keyword::firstOrCreate( [ 'keyword' => $keyword ] );
+                    Log::error($keyword_element);
                     $media->keyword()->attach( $keyword_element );
                 }
             }
@@ -505,7 +516,7 @@ class MediaController extends Controller {
             'poster_file'  => [ 'file', 'mimes:jpg,png,webp' ],
             'poster_path'  => [ 'string', 'filled', 'max:255' ],
             'tmdb_id'      => [ 'numeric', 'integer' ],
-            'youtube_link' => [ 'nullable', 'string', 'regex:/^(http(s)?:\/\/)?(www\.)?youtu(\.)?be(\.com)?\/(watch\?v=)?([a-zA-Z\d\-_&=?]+)$/' ],
+            'youtube_link' => [ 'nullable', 'string', 'regex:/^([a-zA-Z\d\-_&=?]+)$/' ],
             'cast'         => [ 'array' ],
             'age_rating'   => [ 'exists:age_ratings,fsk' ],
             'location'     => [ 'max:255' ],
@@ -630,7 +641,7 @@ class MediaController extends Controller {
                 }
             }
 
-            return response( $media, 201 );
+            return response( $media, 200 );
         } catch ( QueryException $ex ) {
             if ( env( 'APP_DEBUG' ) ) {
                 $res['message'] = $ex->getMessage();

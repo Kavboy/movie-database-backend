@@ -121,6 +121,7 @@ Route::group( [ 'prefix' => '/v1' ], function () {
          */
         Route::group( [ 'prefix' => '/keyword' ], function () {
             Route::get( '', [ KeywordController::class, 'index' ] )->middleware( [ 'role:Admin:Creator' ] );
+            Route::post( '/search', [ KeywordController::class, 'search' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::put( '', [ KeywordController::class, 'store' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::patch( '', [ KeywordController::class, 'update' ] )->middleware( [ 'role:Admin:Creator' ] );
             Route::delete( '/{keyword}', [ KeywordController::class, 'destroy' ] )->middleware( [ 'role:Admin:Creator' ] );
